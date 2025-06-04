@@ -25,20 +25,3 @@ def get_di_channels():
 def get_do_channels():
     for device in System.local().devices:
         print(f"{device.name} DO Channels: {device.do_lines.channel_names}")
-
-def start_ai_task():
-    global task
-    device = list(System.local().devices)[0].name
-    task = nidaqmx.Task()
-    task.ai_channels.add_ai_voltage_chan(f"{device}/ai0")
-    task.start()
-    print(f"Started AI task on {device}/ai0")
-
-def stop_task():
-    global task
-    if task:
-        task.stop()
-        task.close()
-        print("Task stopped and closed.")
-    else:
-        print("No active task.")

@@ -3,7 +3,5 @@
   "get ai channels": "get_ai_channels",
   "get ao channels": "get_ao_channels",
   "get di channels": "get_di_channels",
-  "get do channels": "get_do_channels",
-  "start analog input": "start_ai_task",
-  "stop task": "stop_task"
+  "get do channels": "get_do_channels"
 }
