@@ -23,10 +23,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="daq_chatbot.py" />
+    <Compile Include="data_moniker_pb2.py" />
+    <Compile Include="data_moniker_pb2_grpc.py" />
     <Compile Include="intent_loader.py" />
     <Compile Include="intent_router.py" />
     <Compile Include="main.py" />
+    <Compile Include="nidaqmx_pb2.py" />
+    <Compile Include="nidaqmx_pb2_grpc.py" />
+    <Compile Include="nidaq_grpc_handlers.py" />
     <Compile Include="nidaq_handlers.py" />
+    <Compile Include="session_pb2.py" />
+    <Compile Include="session_pb2_grpc.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="intent_map.json" />
