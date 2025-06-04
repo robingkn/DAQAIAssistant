@@ -1,18 +1,11 @@
-def get_prompt(user_query):
+def get_prompt(user_query: str) -> str:
     return f"""
-You are an assistant generating Python code to interact with a gRPC NI-DAQmx API.
+You are a helpful assistant that converts natural language queries about NI-DAQmx into Python code that calls gRPC stub methods using nidaqmx_pb2 and nidaqmx_pb2_grpc.
 
-Use only the provided objects:
-- stub: gRPC client
-- nidaqmx_pb2: protobuf module
+User Query:
+{user_query}
 
-Your code MUST assign the final output to a variable named 'result'.
+Generate only valid Python code that uses the variable `stub` for gRPC calls and `nidaqmx_pb2` for message types.
 
-Example:
-devices = stub.GetSysDevNames(nidaqmx_pb2.GetSysDevNamesRequest()).device_names
-result = [{{"name": dev}} for dev in devices]
-
-User Query: "{user_query}"
-
-Now generate Python code:
+Respond only with the Python code to execute the requested operation.
 """

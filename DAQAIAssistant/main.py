@@ -1,42 +1,57 @@
-﻿import grpc
-from openai import OpenAI
-import nidaqmx_pb2
-import nidaqmx_pb2_grpc
-from run_generated import run_generated_code
-from prompts import get_prompt
+﻿import os
+import requests
 
-# Initialize OpenAI client (uses OPENAI_API_KEY env variable)
-client = OpenAI()
+# Use a lightweight free model (e.g., gpt2)
+HF_MODEL_ID = "tiiuae/falcon-7b-instruct"
+HF_API_TOKEN = os.getenv("HF_API_TOKEN")
 
-def get_code_from_openai(prompt):
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0,
-    )
-    content = response.choices[0].message.content
-    return content.removeprefix("```python").removesuffix("```").strip()
+def get_code_from_huggingface(prompt: str) -> str:
+    if not HF_API_TOKEN:
+        raise EnvironmentError("Set HF_API_TOKEN in your environment.")
+
+    headers = {"Authorization": f"Bearer {HF_API_TOKEN}"}
+    payload = {
+        "inputs": prompt,
+        "parameters": {
+            "max_new_tokens": 100,
+            "temperature": 0.7,
+            "return_full_text": False,
+        }
+    }
+
+    url = f"https://api-inference.huggingface.co/models/{HF_MODEL_ID}"
+    response = requests.post(url, headers=headers, json=payload)
+    response.raise_for_status()
+    data = response.json()
+
+    if isinstance(data, dict) and "error" in data:
+        raise RuntimeError(f"Hugging Face Error: {data['error']}")
+
+    return data[0]["generated_text"]
+
+def run_generated_code(code: str) -> str:
+    try:
+        local_vars = {}
+        exec(code, {}, local_vars)
+        return str(local_vars.get("result", "✅ Code ran successfully"))
+    except Exception as e:
+        return f"❌ Error during execution: {e}"
 
 def main():
-    channel = grpc.insecure_channel("localhost:31763")
-    stub = nidaqmx_pb2_grpc.NiDAQmxStub(channel)
-
-    print("💬 NI-DAQ Chat Interface (type 'exit' to quit)")
+    print("🎯 Type your DAQ-like query (or 'exit' to quit)")
     while True:
-        query = input("🧑 You: ").strip()
+        query = input("🔹 You: ").strip()
         if query.lower() in {"exit", "quit"}:
             break
 
-        prompt = get_prompt(query)
-        generated_code = get_code_from_openai(prompt)
+        prompt = f"Write Python code to {query}. Output should assign a variable 'result'."
+        print("🧠 Thinking...")
+        code = get_code_from_huggingface(prompt)
+        print("\n📝 Code:\n", code)
 
-        print("\n🤖 Generated Code:\n" + generated_code)
-        print("\n🚀 Executing...\n")
-        result = run_generated_code(generated_code, {
-            "stub": stub,
-            "nidaqmx_pb2": nidaqmx_pb2
-        })
-        print("📤 Result:\n", result, "\n")
+        print("\n🚀 Running...")
+        output = run_generated_code(code)
+        print("\n📤 Output:\n", output)
 
 if __name__ == "__main__":
     main()
