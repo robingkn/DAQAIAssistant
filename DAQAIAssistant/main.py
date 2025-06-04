@@ -1,7 +1,7 @@
 ﻿# main.py
 
 import openai_key
-from prompts import grpc_prompt_template
+from prompts import SYSTEM_PROMPT, get_user_prompt
 from run_generated import run_generated_code
 import nidaqmx_pb2 as nidaqmx_types
 import nidaqmx_pb2_grpc as grpc_nidaqmx
@@ -31,7 +31,7 @@ def main():
         if user_input.lower() in {"exit", "quit"}:
             break
 
-        prompt = grpc_prompt_template(user_input)
+        prompt = get_user_prompt(user_input)
         code = call_model(prompt)
         print("\n📝 Code generated:\n", code)
 
