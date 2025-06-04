@@ -22,18 +22,10 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="data_moniker_pb2.py" />
-    <Compile Include="data_moniker_pb2_grpc.py" />
     <Compile Include="main.py" />
-    <Compile Include="nidaqmx_pb2.py" />
-    <Compile Include="nidaqmx_pb2_grpc.py" />
-    <Compile Include="openai_key.py" />
-    <Compile Include="prompts.py" />
-    <Compile Include="run_generated.py" />
-    <Compile Include="session_pb2.py" />
-    <Compile Include="session_pb2_grpc.py" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="intent_map.json" />
     <Content Include="requirements.txt" />
   </ItemGroup>
   <ItemGroup>
