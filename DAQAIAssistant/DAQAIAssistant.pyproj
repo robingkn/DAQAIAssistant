@@ -22,7 +22,11 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="daq_chatbot.py" />
+    <Compile Include="intent_loader.py" />
+    <Compile Include="intent_router.py" />
     <Compile Include="main.py" />
+    <Compile Include="nidaq_handlers.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="intent_map.json" />
