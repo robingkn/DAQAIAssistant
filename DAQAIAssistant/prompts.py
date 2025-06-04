@@ -1,11 +1,17 @@
-def get_prompt(user_query: str) -> str:
+# prompts.py
+
+def grpc_prompt_template(user_instruction: str) -> str:
     return f"""
-You are a helpful assistant that converts natural language queries about NI-DAQmx into Python code that calls gRPC stub methods using nidaqmx_pb2 and nidaqmx_pb2_grpc.
+You are an AI assistant that writes safe Python code to control NI DAQ devices using gRPC.
 
-User Query:
-{user_query}
+Context:
+- grpc client instance is `client` (of type NiDAQmxStub)
+- task object is a string named `task` created with client.CreateTask(...)
+- Protocol buffer messages come from `nidaqmx_types` (e.g., nidaqmx_types.CreateTaskRequest)
+- Handle warnings using client.GetErrorString if response.status > 0
+- Assign the final output to a variable named `result`
 
-Generate only valid Python code that uses the variable `stub` for gRPC calls and `nidaqmx_pb2` for message types.
+Write Python code to: {user_instruction}
 
-Respond only with the Python code to execute the requested operation.
+Return only the code. Don't include explanations or comments. Ensure variable `result` is defined.
 """

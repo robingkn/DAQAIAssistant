@@ -1,8 +1,14 @@
-def run_generated_code(code: str, context: dict):
+﻿# run_generated.py
+
+def run_generated_code(code: str, client, nidaqmx_types, task=None):
     try:
-        exec_globals = {}
-        exec_locals = context.copy()
-        exec(code, exec_globals, exec_locals)
-        return exec_locals.get("result", "No result variable found in code.")
+        local_vars = {
+            "client": client,
+            "nidaqmx_types": nidaqmx_types,
+            "task": task,
+            "result": None,
+        }
+        exec(code, {}, local_vars)
+        return local_vars.get("result"), local_vars.get("task")
     except Exception as e:
-        return f"Error executing code: {e}"
+        return f"❌ Execution error: {e}", task
