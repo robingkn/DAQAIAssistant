@@ -1,57 +1,47 @@
 ﻿import os
 import requests
 
-# Use a lightweight free model (e.g., gpt2)
-HF_MODEL_ID = "tiiuae/falcon-7b-instruct"
+API_URL = "https://router.huggingface.co/nebius/v1/chat/completions"
 HF_API_TOKEN = os.getenv("HF_API_TOKEN")
 
-def get_code_from_huggingface(prompt: str) -> str:
-    if not HF_API_TOKEN:
-        raise EnvironmentError("Set HF_API_TOKEN in your environment.")
+if not HF_API_TOKEN:
+    raise EnvironmentError("HF_API_TOKEN not set.")
 
-    headers = {"Authorization": f"Bearer {HF_API_TOKEN}"}
-    payload = {
-        "inputs": prompt,
-        "parameters": {
-            "max_new_tokens": 100,
-            "temperature": 0.7,
-            "return_full_text": False,
-        }
-    }
+HEADERS = {
+    "Authorization": f"Bearer {HF_API_TOKEN}",
+}
 
-    url = f"https://api-inference.huggingface.co/models/{HF_MODEL_ID}"
-    response = requests.post(url, headers=headers, json=payload)
+MODEL = "deepseek-ai/DeepSeek-R1-0528"
+
+def get_python_code(prompt):
+    print("🎯 Asking the model...")
+    response = requests.post(API_URL, headers=HEADERS, json={
+        "messages": [{"role": "user", "content": f"Write safe Python code to {prompt}. Return result in a variable named `result`."}],
+        "model": MODEL
+    })
     response.raise_for_status()
-    data = response.json()
+    return response.json()["choices"][0]["message"]["content"]
 
-    if isinstance(data, dict) and "error" in data:
-        raise RuntimeError(f"Hugging Face Error: {data['error']}")
-
-    return data[0]["generated_text"]
-
-def run_generated_code(code: str) -> str:
+def run_generated_code(code):
     try:
         local_vars = {}
-        exec(code, {}, local_vars)
-        return str(local_vars.get("result", "✅ Code ran successfully"))
+        exec(code, {"os": os}, local_vars)  # expose os module safely
+        return local_vars.get("result", "No result variable defined.")
     except Exception as e:
-        return f"❌ Error during execution: {e}"
+        return f"❌ Execution error: {e}"
 
 def main():
-    print("🎯 Type your DAQ-like query (or 'exit' to quit)")
+    print("📂 Filesystem Assistant (type 'exit' to quit)")
     while True:
-        query = input("🔹 You: ").strip()
-        if query.lower() in {"exit", "quit"}:
+        user_input = input("🟦 You: ").strip()
+        if user_input.lower() in {"exit", "quit"}:
             break
 
-        prompt = f"Write Python code to {query}. Output should assign a variable 'result'."
-        print("🧠 Thinking...")
-        code = get_code_from_huggingface(prompt)
-        print("\n📝 Code:\n", code)
+        code = get_python_code(user_input)
+        print("\n📝 Code generated:\n", code)
 
-        print("\n🚀 Running...")
-        output = run_generated_code(code)
-        print("\n📤 Output:\n", output)
+        result = run_generated_code(code)
+        print("\n✅ Result:\n", result, "\n")
 
 if __name__ == "__main__":
     main()
