@@ -1,37 +1,75 @@
+import sys
 import grpc
-from nidaqmx_pb2 import ListDevicesRequest, GetPhysicalChannelsRequest
-from nidaqmx_pb2_grpc import DeviceServiceStub
+import nidaqmx_pb2 as nidaqmx_types
+import nidaqmx_pb2_grpc as grpc_nidaqmx
 
-# Map channel type enum
-CHANNEL_TYPE_AI = 0
-CHANNEL_TYPE_AO = 1
-CHANNEL_TYPE_DI = 2
-CHANNEL_TYPE_DO = 3
+# Default values
+SERVER_ADDRESS = "localhost"
+SERVER_PORT = "31763"
 
-# Create a gRPC channel to the NI gRPC Device Server
-def get_device_stub(server_address="localhost:31763"):
-    channel = grpc.insecure_channel(server_address)
-    return DeviceServiceStub(channel)
+# Override defaults from command-line arguments
+if len(sys.argv) >= 2:
+    SERVER_ADDRESS = sys.argv[1]
+if len(sys.argv) >= 3:
+    SERVER_PORT = sys.argv[2]
 
-def list_nidaq_devices(server_address="localhost:31763"):
-    stub = get_device_stub(server_address)
-    response = stub.ListDevices(ListDevicesRequest())
-    return list(response.device_names)
+# Create a gRPC channel and client
+channel = grpc.insecure_channel(f"{SERVER_ADDRESS}:{SERVER_PORT}")
+client = grpc_nidaqmx.NiDAQmxStub(channel)
 
-def get_ai_channels(device_name, server_address="localhost:31763"):
-    return _get_channels(device_name, CHANNEL_TYPE_AI, server_address)
+def list_nidaq_devices():
+    response = client.GetSystemInfoAttributeString(
+        nidaqmx_types.GetSystemInfoAttributeStringRequest(
+            attribute=nidaqmx_types.SystemStringAttribute.SYSTEM_ATTRIBUTE_DEV_NAMES
+        )
+    )
+    devices = response.value.split(',')
+    print("Devices:", devices)
 
-def get_ao_channels(device_name, server_address="localhost:31763"):
-    return _get_channels(device_name, CHANNEL_TYPE_AO, server_address)
+def get_ai_channels(device_name):
+    response = client.GetDeviceAttributeString(
+        nidaqmx_types.GetDeviceAttributeStringRequest(
+            device_name=device_name,
+            attribute=nidaqmx_types.DeviceStringAttribute.DEVICE_ATTRIBUTE_AI_PHYSICAL_CHANS
+        )
+    )
+    print(f"AI Channels for {device_name}:", response.value.split(','))
 
-def get_di_channels(device_name, server_address="localhost:31763"):
-    return _get_channels(device_name, CHANNEL_TYPE_DI, server_address)
+def get_ao_channels(device_name):
+    response = client.GetDeviceAttributeString(
+        nidaqmx_types.GetDeviceAttributeStringRequest(
+            device_name=device_name,
+            attribute=nidaqmx_types.DeviceStringAttribute.DEVICE_ATTRIBUTE_AO_PHYSICAL_CHANS
+        )
+    )
+    print(f"AO Channels for {device_name}:", response.value.split(','))
 
-def get_do_channels(device_name, server_address="localhost:31763"):
-    return _get_channels(device_name, CHANNEL_TYPE_DO, server_address)
+def get_di_channels(device_name):
+    response = client.GetDeviceAttributeString(
+        nidaqmx_types.GetDeviceAttributeStringRequest(
+            device_name=device_name,
+            attribute=nidaqmx_types.DeviceStringAttribute.DEVICE_ATTRIBUTE_DI_LINES
+        )
+    )
+    print(f"DI Channels for {device_name}:", response.value.split(','))
 
-def _get_channels(device_name, channel_type, server_address):
-    stub = get_device_stub(server_address)
-    request = GetPhysicalChannelsRequest(device_name=device_name, channel_type=channel_type)
-    response = stub.GetPhysicalChannels(request)
-    return list(response.physical_channels)
+def get_do_channels(device_name):
+    response = client.GetDeviceAttributeString(
+        nidaqmx_types.GetDeviceAttributeStringRequest(
+            device_name=device_name,
+            attribute=nidaqmx_types.DeviceStringAttribute.DEVICE_ATTRIBUTE_DO_LINES
+        )
+    )
+    print(f"DO Channels for {device_name}:", response.value.split(','))
+
+
+# # Example usage
+# if __name__ == "__main__":
+#     devices = list_nidaq_devices()
+#     print("NI-DAQmx Devices:", devices)
+
+#     for device in devices:
+#         print(f"AI Channels for {device}:", get_ai_channels(device))
+#         print(f"AO Channels for {device}:", get_ao_channels(device))
+#         print(f"DI Channels for {device}:", get_di_channels(device))
+#         print(f"DO Channels for {device}:", get_do_channels(device))

@@ -1,5 +1,5 @@
 ﻿from intent_router import match_intent
-from nidaq_handlers import *
+from nidaq_grpc_handlers import *
 from intent_loader import load_intent_map
 
 def run_chatbot():
