@@ -1,7 +1,7 @@
 {
   "list devices": "list_nidaq_devices",
-  "get ai channels": "get_ai_channels",
-  "get ao channels": "get_ao_channels",
-  "get di channels": "get_di_channels",
-  "get do channels": "get_do_channels"
+  "get ai channels": "print_all_ai_channels",
+  "get ao channels": "print_all_ao_channels",
+  "get di channels": "print_all_di_channels",
+  "get do channels": "print_all_do_channels"
 }
