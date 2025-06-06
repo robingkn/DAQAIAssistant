@@ -3,5 +3,9 @@
   "get ai channels": "print_all_ai_channels",
   "get ao channels": "print_all_ao_channels",
   "get di channels": "print_all_di_channels",
-  "get do channels": "print_all_do_channels"
+  "get do channels": "print_all_do_channels",
+  "get ci channels": "print_all_ci_channels",
+  "get co channels": "print_all_co_channels",
+  "get supported measurement types": "print_supported_measurement_types",
+  "get product info": "print_product_info"
 }
