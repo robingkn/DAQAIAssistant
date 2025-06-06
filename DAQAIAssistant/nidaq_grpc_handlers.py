@@ -25,51 +25,48 @@ def list_nidaq_devices():
     )
     devices = response.value.split(',')
     print("Devices:", devices)
+    return devices
 
-def get_ai_channels(device_name):
-    response = client.GetDeviceAttributeString(
-        nidaqmx_types.GetDeviceAttributeStringRequest(
-            device_name=device_name,
-            attribute=nidaqmx_types.DeviceStringAttribute.DEVICE_ATTRIBUTE_AI_PHYSICAL_CHANS
+def get_ai_channels():
+    devices = list_nidaq_devices()
+    for device in devices:
+        response = client.GetDeviceAttributeString(
+            nidaqmx_types.GetDeviceAttributeStringRequest(
+                device_name=device,
+                attribute=nidaqmx_types.DeviceStringAttribute.DEVICE_ATTRIBUTE_AI_PHYSICAL_CHANS
+            )
         )
-    )
-    print(f"AI Channels for {device_name}:", response.value.split(','))
+        print(f"AI Channels for {device}:", response.value.split(','))
 
-def get_ao_channels(device_name):
-    response = client.GetDeviceAttributeString(
-        nidaqmx_types.GetDeviceAttributeStringRequest(
-            device_name=device_name,
-            attribute=nidaqmx_types.DeviceStringAttribute.DEVICE_ATTRIBUTE_AO_PHYSICAL_CHANS
+def get_ao_channels():
+    devices = list_nidaq_devices()
+    for device in devices:
+        response = client.GetDeviceAttributeString(
+            nidaqmx_types.GetDeviceAttributeStringRequest(
+                device_name=device,
+                attribute=nidaqmx_types.DeviceStringAttribute.DEVICE_ATTRIBUTE_AO_PHYSICAL_CHANS
+            )
         )
-    )
-    print(f"AO Channels for {device_name}:", response.value.split(','))
+        print(f"AO Channels for {device}:", response.value.split(','))
 
-def get_di_channels(device_name):
-    response = client.GetDeviceAttributeString(
-        nidaqmx_types.GetDeviceAttributeStringRequest(
-            device_name=device_name,
-            attribute=nidaqmx_types.DeviceStringAttribute.DEVICE_ATTRIBUTE_DI_LINES
+def get_di_channels():
+    devices = list_nidaq_devices()
+    for device in devices:
+        response = client.GetDeviceAttributeString(
+            nidaqmx_types.GetDeviceAttributeStringRequest(
+                device_name=device,
+                attribute=nidaqmx_types.DeviceStringAttribute.DEVICE_ATTRIBUTE_DI_LINES
+            )
         )
-    )
-    print(f"DI Channels for {device_name}:", response.value.split(','))
+        print(f"DI Channels for {device}:", response.value.split(','))
 
-def get_do_channels(device_name):
-    response = client.GetDeviceAttributeString(
-        nidaqmx_types.GetDeviceAttributeStringRequest(
-            device_name=device_name,
-            attribute=nidaqmx_types.DeviceStringAttribute.DEVICE_ATTRIBUTE_DO_LINES
+def get_do_channels():
+    devices = list_nidaq_devices()
+    for device in devices:
+        response = client.GetDeviceAttributeString(
+            nidaqmx_types.GetDeviceAttributeStringRequest(
+                device_name=device,
+                attribute=nidaqmx_types.DeviceStringAttribute.DEVICE_ATTRIBUTE_DO_LINES
+            )
         )
-    )
-    print(f"DO Channels for {device_name}:", response.value.split(','))
-
-
-# # Example usage
-# if __name__ == "__main__":
-#     devices = list_nidaq_devices()
-#     print("NI-DAQmx Devices:", devices)
-
-#     for device in devices:
-#         print(f"AI Channels for {device}:", get_ai_channels(device))
-#         print(f"AO Channels for {device}:", get_ao_channels(device))
-#         print(f"DI Channels for {device}:", get_di_channels(device))
-#         print(f"DO Channels for {device}:", get_do_channels(device))
+        print(f"DO Channels for {device}:", response.value.split(','))
