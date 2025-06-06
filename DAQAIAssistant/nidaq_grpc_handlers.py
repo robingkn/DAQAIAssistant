@@ -17,6 +17,38 @@ if len(sys.argv) >= 3:
 channel = grpc.insecure_channel(f"{SERVER_ADDRESS}:{SERVER_PORT}")
 client = grpc_nidaqmx.NiDAQmxStub(channel)
 
+MEASUREMENT_TYPE_MAP = {
+    10322: "Voltage",
+    10350: "Voltage RMS",
+    10134: "Current",
+    10351: "Current RMS",
+    15908: "Bridge",
+    10181: "Frequency Voltage",
+    10278: "Resistance",
+    10303: "Temperature (Thermocouple)",
+    10302: "Temperature (Thermistor)",
+    10301: "Temperature (RTD)",
+    10311: "Temperature (Built-in Sensor)",
+    10300: "Strain Gage",
+    15980: "Rosette Strain Gage",
+    10352: "Position (LVDT)",
+    10353: "Position (RVDT)",
+    14835: "Position (Eddy Current Proximity)",
+    10356: "Accelerometer",
+    16104: "Acceleration (Charge)",
+    16106: "Acceleration (4-Wire DC Voltage)",
+    15966: "Velocity (IEPE Sensor)",
+    15899: "Force (Bridge)",
+    15895: "Force (IEPE Sensor)",
+    15902: "Pressure (Bridge)",
+    10354: "Sound Pressure (Microphone)",
+    15905: "Torque (Bridge)",
+    12531: "TEDS Sensor",
+    16105: "Charge",
+    16201: "Power",
+    16204: "Calculated Power"
+}
+
 def list_nidaq_devices():
     response = client.GetSystemInfoAttributeString(
         nidaqmx_types.GetSystemInfoAttributeStringRequest(
@@ -102,53 +134,35 @@ def print_supported_measurement_types():
                 attribute=nidaqmx_types.DeviceInt32ArrayAttribute.DEVICE_ATTRIBUTE_AI_SUPPORTED_MEAS_TYPES
             )
         )
-        print(f"Supported AI Measurement Types for {device}:", response.value_raw)
+        readable = [MEASUREMENT_TYPE_MAP.get(val, f"Unknown ({val})") for val in response.value_raw]
+        print(f"Supported AI Measurement Types for {device}:", readable)
 
 def print_product_info():
     devices = list_nidaq_devices()
     for device in devices:
-        response = client.GetDeviceAttributeString(
+        product_type_response = client.GetDeviceAttributeString(
             nidaqmx_types.GetDeviceAttributeStringRequest(
                 device_name=device,
                 attribute=nidaqmx_types.DeviceStringAttribute.DEVICE_ATTRIBUTE_PRODUCT_TYPE
             )
         )
-        print(f"Product Type for {device}:", response.value)
-
-        response = client.GetDeviceAttributeUInt32(
+        serial_num_response = client.GetDeviceAttributeUInt32(
             nidaqmx_types.GetDeviceAttributeUInt32Request(
                 device_name=device,
                 attribute=nidaqmx_types.DeviceUInt32Attribute.DEVICE_ATTRIBUTE_SERIAL_NUM
             )
         )
-        print(f"Serial Number for {device}:", response.value)
+        print(f"Product Type for {device}:", product_type_response.value)
+        print(f"Serial Number for {device}:", serial_num_response.value)
 
 # # Example usage
 # if __name__ == "__main__":
-#     print("Listing all devices:")
-#     list_nidaq_devices()
-
-#     print("\nListing all AI channels:")
 #     print_all_ai_channels()
-
-#     print("\nListing all AO channels:")
 #     print_all_ao_channels()
-
-#     print("\nListing all DI channels:")
 #     print_all_di_channels()
-
-#     print("\nListing all DO channels:")
 #     print_all_do_channels()
-
-#     print("\nListing all CI channels:")
 #     print_all_ci_channels()
-
-#     print("\nListing all CO channels:")
 #     print_all_co_channels()
-
-#     print("\nListing supported measurement types:")
 #     print_supported_measurement_types()
-
-#     print("\nListing product info:")
 #     print_product_info()
 
